@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 from pathlib import Path
 
 from logger import setup_logger
@@ -23,14 +24,24 @@ def main() -> None:
     logger.info("Application Started")
 
     try:
+        # Read and parse entries with progress feedback
+        print("Reading entries...")
+        start_time = time.perf_counter()
         parser = LogParser(LOG_FILE)
         entries = parser.parse()
+        print(f"✓ {len(entries)} log entries loaded.")
         logger.info("Log Loaded")
 
         if not entries:
             raise ValueError("Log file is empty.")
 
-        report = generate_analysis_report(entries)
+        print()
+        print("Analyzing log levels...")
+        # Generate report and include source and execution time
+        exec_time = time.perf_counter() - start_time
+        report = generate_analysis_report(entries, source=LOG_FILE.name, execution_time=exec_time)
+        print("✓ Completed.")
+        print()
         print(report)
         logger.info("Report Generated")
 
